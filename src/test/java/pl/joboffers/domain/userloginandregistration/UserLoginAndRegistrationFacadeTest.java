@@ -23,8 +23,8 @@ public class UserLoginAndRegistrationFacadeTest {
         //then
         assertThat(results.userId()).isNotEmpty();
         assertThat(results.userName()).isEqualTo("User");
-
     }
+
     @Test
     public void should_find_user_by_user_name(){
         //given
@@ -36,7 +36,6 @@ public class UserLoginAndRegistrationFacadeTest {
 
         //then
         assertThat(userDto).isEqualTo(new UserDto("User"));
-
     }
 
     @Test

@@ -1,8 +1,5 @@
 package pl.joboffers.domain.userloginandregistration;
 
-import pl.joboffers.domain.userloginandregistration.dto.NewUserRequestDto;
-import pl.joboffers.domain.userloginandregistration.dto.RegistrationResultDto;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
