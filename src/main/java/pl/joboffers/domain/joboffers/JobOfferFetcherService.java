@@ -15,16 +15,9 @@ public class JobOfferFetcherService {
         List<JobOfferResponseDto> fetchedJobOffers = jobOfferFetcher.fetchAllJobOffers();
         return fetchedJobOffers.stream()
                 .filter(fetched -> !jobOfferRepository.existJobOfferByUrl(fetched.url()))
-                .map(fetched -> {
-                    JobOffer save = jobOfferRepository.save(new JobOffer(
-                            fetched.jobId(),
-                            fetched.url(),
-                            fetched.jobName(),
-                            fetched.company(),
-                            fetched.salary()
-                    ));
-                    return new JobOfferResponseDto(save.jobId(), save.url(), save.jobName(), save.company(), save.salary());
-                })
+                .map(JobOfferMapper::mapFromJobOfferResponseDtoToJobOffer)
+                .map(jobOfferRepository::save)
+                .map(JobOfferMapper::mapFromJobOfferToJobOfferResponseDto)
                 .toList();
     }
 }

@@ -2,7 +2,6 @@ package pl.joboffers.domain.joboffers;
 
 import lombok.RequiredArgsConstructor;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
-import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
 import java.util.List;
 
@@ -14,17 +13,13 @@ class JobOfferRetriever {
     List<JobOfferDto> findAllJobsOffer() {
         return jobOfferRepository.findAllJobOffers()
                 .stream()
-                .map(jobOffer -> JobOfferDto.builder()
-                        .url(jobOffer.url())
-                        .jobName(jobOffer.jobName())
-                        .salary(jobOffer.salary())
-                        .build())
+                .map(JobOfferMapper::mapFromJobOfferToJobOfferDto)
                 .toList();
     }
 
     JobOfferDto findJobOfferById(String jobId) {
         return jobOfferRepository.findJobOfferById(jobId)
-                .map(offer -> new JobOfferDto(offer.jobId(), offer.url(), offer.jobName(), offer.company(), offer.salary() ))
+                .map(JobOfferMapper::mapFromJobOfferToJobOfferDto)
                 .orElseThrow(()->new JobOfferNotFoundException("Job offer not found"));
     }
 

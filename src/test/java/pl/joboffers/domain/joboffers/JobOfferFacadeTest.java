@@ -54,11 +54,11 @@ public class JobOfferFacadeTest {
        assertThat(jobOfferFacade.findAllJobsOffers()).hasSize(3);
 
        //when
-       List<JobOfferResponseDto> jobOfferResponseDtos = jobOfferFacade.fetchAllJobOffersAndSave();
+       List<JobOfferResponseDto> jobOfferResponseDto = jobOfferFacade.fetchAllJobOffersAndSave();
 
        //then
         assertThat(jobOfferFacade.findAllJobsOffers()).hasSize(5);
-        assertTrue(jobOfferResponseDtos.get(0).url().equals("www.joboffer2.com"));
+        assertTrue(jobOfferResponseDto.get(0).url().equals("www.joboffer2.com"));
 
 
    }
