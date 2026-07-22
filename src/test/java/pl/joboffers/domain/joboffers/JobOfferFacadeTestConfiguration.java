@@ -12,6 +12,7 @@ public class JobOfferFacadeTestConfiguration {
     private final InMemoryJobOfferFetcher offerFetcher;
     private final InMemoryJobOfferRepository offerRepository;
 
+
     public JobOfferFacadeTestConfiguration() {
         this.offerFetcher=new InMemoryJobOfferFetcher();
         this.offerRepository = new InMemoryJobOfferRepository();
@@ -28,7 +29,10 @@ public class JobOfferFacadeTestConfiguration {
     }
 
     JobOfferFacade jobOfferFacadeForTests(){
-        return new JobOfferFacade(offerRepository, offerFetcher);
+        JobOfferAdder offerAdder = new JobOfferAdder(offerRepository);
+        JobOfferRetriever offerRetriever = new JobOfferRetriever(offerRepository);
+        JobOfferFetcherService offerFetcherService = new JobOfferFetcherService(offerFetcher, offerRepository);
+        return new JobOfferFacade(offerRetriever, offerAdder, offerFetcherService);
     }
 
 

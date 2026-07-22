@@ -1,5 +1,7 @@
 package pl.joboffers.domain.joboffers;
 
+import pl.joboffers.domain.joboffers.dto.JobOfferDto;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,4 +39,6 @@ public class InMemoryJobOfferRepository implements JobOfferRepository{
     public boolean existJobOfferByUrl(String url) {
         return databaseByUrl.containsKey(url);
     }
+
+
 }

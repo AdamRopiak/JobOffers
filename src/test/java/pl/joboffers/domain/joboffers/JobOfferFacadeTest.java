@@ -11,6 +11,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @RequiredArgsConstructor
 public class JobOfferFacadeTest {
 
@@ -25,7 +26,7 @@ public class JobOfferFacadeTest {
         JobOfferFacadeTestConfiguration config = new JobOfferFacadeTestConfiguration(jobOffesFromApi);
         JobOfferFacade jobOfferFacade = config.jobOfferFacadeForTests();
 
-        List<JobOffer> databaseState = config.getOfferRepository().findAllJobOffers();
+        List<JobOfferDto> databaseState = jobOfferFacade.findAllJobsOffers();
         assertThat(databaseState).isEmpty();
 
         //when
@@ -33,7 +34,7 @@ public class JobOfferFacadeTest {
 
         //then
         assertThat(savedOffers).hasSize(3);
-        List<JobOffer> databaseContent = config.getOfferRepository().findAllJobOffers();
+        List<JobOfferDto> databaseContent = jobOfferFacade.findAllJobsOffers();
         assertThat(databaseContent).hasSize(3);
 
     }
@@ -70,7 +71,7 @@ public class JobOfferFacadeTest {
         JobOfferRequestDto juniorJavaDeveloper = new JobOfferRequestDto("www.joboffer1.com", "Junior Java Developer", "Firma krzak", 15.21d);
 
         //when
-        JobOfferResponseDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(juniorJavaDeveloper);
+        JobOfferDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(juniorJavaDeveloper);
 
         //then
         assertThat(jobOfferResponse.url()).isEqualTo("www.joboffer1.com");
@@ -86,7 +87,7 @@ public class JobOfferFacadeTest {
         JobOfferFacadeTestConfiguration config = new JobOfferFacadeTestConfiguration();
         JobOfferFacade jobOfferFacade = config.jobOfferFacadeForTests();
         JobOfferRequestDto juniorJavaDeveloper = new JobOfferRequestDto("www.joboffer1.com", "Junior Java Developer", "Firma krzak", 15.21d);
-        JobOfferResponseDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(juniorJavaDeveloper);
+        jobOfferFacade.saveNewJobOffer(juniorJavaDeveloper);
 
         //when
         boolean exists = jobOfferFacade.existsByUrl("www.joboffer1.com");
@@ -101,13 +102,13 @@ public class JobOfferFacadeTest {
         JobOfferFacadeTestConfiguration config = new JobOfferFacadeTestConfiguration();
         JobOfferFacade jobOfferFacade = config.jobOfferFacadeForTests();
         JobOfferRequestDto jobOfferRequest = new JobOfferRequestDto("www.joboffer1.com", "Junior Java Developer", "Firma krzak", 15.21d);
-        JobOfferResponseDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(jobOfferRequest);
+        JobOfferDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(jobOfferRequest);
 
         //when
-        JobOfferResponseDto jobOfferById = jobOfferFacade.findJobOfferById(jobOfferResponse.jobId());
+        JobOfferDto jobOfferById = jobOfferFacade.findJobOfferById(jobOfferResponse.jobId());
 
         //then
-        assertThat(jobOfferById).isEqualTo(JobOfferResponseDto.builder()
+        assertThat(jobOfferById).isEqualTo(JobOfferDto.builder()
                         .jobId(jobOfferResponse.jobId())
                         .url("www.joboffer1.com")
                         .jobName("Junior Java Developer")
@@ -143,7 +144,7 @@ public class JobOfferFacadeTest {
         //give
         JobOfferFacadeTestConfiguration config = new JobOfferFacadeTestConfiguration();
         JobOfferFacade jobOfferFacade = config.jobOfferFacadeForTests();
-        List<JobOfferDto> allJobsOffers = jobOfferFacade.findAllJobsOffers();
+        jobOfferFacade.findAllJobsOffers();
 
         //when
         Throwable throwable = catchThrowable(() -> jobOfferFacade.findJobOfferById("2"));
