@@ -1,6 +1,7 @@
 package pl.joboffers.domain.userloginandregistration;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import pl.joboffers.domain.userloginandregistration.dto.NewUserRequestDto;
 import pl.joboffers.domain.userloginandregistration.dto.RegistrationResultDto;
 import pl.joboffers.domain.userloginandregistration.dto.UserDto;
@@ -9,8 +10,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
 public class UserLoginAndRegistrationFacadeTest {
+    private UserLoginAndRegistrationFacade userFacade;
 
-    UserLoginAndRegistrationFacade userFacade = new UserLoginAndRegistrationFacade(new inMemoryUserRepository());
+    @BeforeEach
+    void setUp() {
+        UserLoginAndRegistrationFacadeTestConfig config = new UserLoginAndRegistrationFacadeTestConfig();
+        this.userFacade = config.userLoginAndRegistrationFacadeForTests();
+    }
 
     @Test
     public void should_register_user(){

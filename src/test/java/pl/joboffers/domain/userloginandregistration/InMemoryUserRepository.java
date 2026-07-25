@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class inMemoryUserRepository implements UserRepository{
+public class InMemoryUserRepository implements UserRepository{
 
     Map<String, User> database = new ConcurrentHashMap<>();
 
