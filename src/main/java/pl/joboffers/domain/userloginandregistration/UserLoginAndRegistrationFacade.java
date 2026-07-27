@@ -10,24 +10,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserLoginAndRegistrationFacade {
 
-    private final UserRepository userRepository;
+    private final UserLoginAndRegistrationService userService;
 
     public RegistrationResultDto registerNewUser(NewUserRequestDto newUser) {
-        UUID userId = UUID.randomUUID();
-        User user = User.builder()
-                .userId(userId.toString())
-                .userName(newUser.userName())
-                .password(newUser.password())
-                .build();
-        User savedUser = userRepository.save(user);
-        return new RegistrationResultDto(savedUser.userId(), savedUser.userName());
+        return userService.registerNewuser(newUser);
     }
 
     public UserDto findUserByUserName(String userName) {
-        return userRepository.findByUserName(userName)
-                .map(user -> new UserDto(user.userName()))
-                .orElseThrow(()->new UserNotFoundException("User not found"));
-
-
+        return userService.findUserByUserName(userName);
     }
 }
