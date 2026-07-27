@@ -1,7 +1,8 @@
 package pl.joboffers.domain.joboffers;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferRequestDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
