@@ -1,1 +1,6 @@
-spring.application.name=joboffers
+spring:
+  application:
+    name: joboffers
+  data:
+    mongodb:
+      uri: mongodb://admin:admin@localhost:27017/job-offers
