@@ -4,6 +4,6 @@ import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
 import java.util.List;
 
-interface JobOfferFetcher {
+public interface JobOfferFetcher {
     List<JobOfferResponseDto> fetchAllJobOffers();
 }

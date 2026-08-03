@@ -20,9 +20,9 @@ public class JobOfferFacadeTest {
     public void should_fetch_three_job_offers_and_save_in_database_when_database_is_empty(){
         //given
         List<JobOfferResponseDto> jobOffesFromApi = List.of(
-                new JobOfferResponseDto("1", "www.joboffer1.com", "Senior Developer", "Javax", "15.234"),
-                new JobOfferResponseDto("2", "www.joboffer2.com", "Senior Java Developer", "Testowa firma", "150.234"),
-                new JobOfferResponseDto("3", "www.joboffer3.com", "Junior Java Developer", "FBI", "234.23")
+                new JobOfferResponseDto("Senior Developer", "Javax", "15.234", "www.joboffer1.com"),
+                new JobOfferResponseDto("Senior Java Developer", "Testowa firma", "150.234", "www.joboffer2.com"),
+                new JobOfferResponseDto("Junior Java Developer", "FBI", "234.23", "www.joboffer3.com")
         );
         JobOfferFacadeTestConfiguration config = new JobOfferFacadeTestConfiguration(jobOffesFromApi);
         JobOfferFacade jobOfferFacade = config.jobOfferFacadeForTests();
@@ -44,9 +44,9 @@ public class JobOfferFacadeTest {
     public void should_fetch_three_job_offers_and_save_only_two_offers_with_unique_url_when_there_are_four_offers_in_database(){
        //given
        JobOfferFacade jobOfferFacade = new JobOfferFacadeTestConfiguration(List.of(
-               new JobOfferResponseDto("1", "www.joboffer1.com", "Senior Developer", "Javax", "15.234"),
-               new JobOfferResponseDto("2", "www.joboffer2.com", "Senior Java Developer", "Testowa firma", "150.234"),
-               new JobOfferResponseDto("3", "www.joboffer3.com", "Junior Java Developer", "FBI", "234.23")
+               new JobOfferResponseDto("Senior Developer", "Javax", "15.234", "www.joboffer1.com"),
+               new JobOfferResponseDto("Senior Java Developer", "Testowa firma", "150.234", "www.joboffer2.com"),
+               new JobOfferResponseDto("Junior Java Developer", "FBI", "234.23", "www.joboffer3.com")
                 )
        ).jobOfferFacadeForTests();
        jobOfferFacade.saveNewJobOffer(new JobOfferRequestDto("www.joboffer1.com", "Senior Developer", "Javax", "15.234"));
@@ -59,7 +59,7 @@ public class JobOfferFacadeTest {
 
        //then
         assertThat(jobOfferFacade.findAllJobsOffers()).hasSize(5);
-        assertTrue(jobOfferResponseDto.get(0).url().equals("www.joboffer2.com"));
+        assertTrue(jobOfferResponseDto.get(0).offerUrl().equals("www.joboffer2.com"));
 
 
    }
@@ -110,7 +110,7 @@ public class JobOfferFacadeTest {
 
         //then
         assertThat(jobOfferById).isEqualTo(JobOfferDto.builder()
-                        .jobId(jobOfferResponse.jobId())
+                        .jobId(jobOfferById.jobId())
                         .url("www.joboffer1.com")
                         .jobName("Junior Java Developer")
                         .company("Firma krzak")

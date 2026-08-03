@@ -3,6 +3,7 @@ package pl.joboffers.domain.joboffers;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryJobOfferRepository implements JobOfferRepository{
@@ -16,14 +17,15 @@ public class InMemoryJobOfferRepository implements JobOfferRepository{
 
     @Override
     public JobOffer save(JobOffer newJobOffer) {
+        UUID id = UUID.randomUUID();
         JobOffer jobOffer = new JobOffer(
-                newJobOffer.jobId(),
+                id.toString(),
                 newJobOffer.url(),
                 newJobOffer.jobName(),
                 newJobOffer.company(),
                 newJobOffer.salary()
         );
-        databaseByUrl.put(jobOffer.url(), jobOffer);
+        databaseByUrl.put(jobOffer.url(), newJobOffer);
         databaseById.put(jobOffer.jobId(), newJobOffer);
         return jobOffer;
     }

@@ -30,9 +30,8 @@ public class JobOfferMapper {
 
     public static JobOfferResponseDto mapFromJobOfferToJobOfferResponseDto(JobOffer jobOffer){
         return JobOfferResponseDto.builder()
-                .jobId(jobOffer.jobId())
-                .url(jobOffer.url())
-                .jobName(jobOffer.jobName())
+                .offerUrl(jobOffer.url())
+                .title(jobOffer.jobName())
                 .company(jobOffer.company())
                 .salary(jobOffer.salary())
                 .build();
@@ -40,9 +39,8 @@ public class JobOfferMapper {
 
     public static JobOffer mapFromJobOfferResponseDtoToJobOffer(JobOfferResponseDto jobOfferResponseDto){
         return JobOffer.builder()
-                .jobId(jobOfferResponseDto.jobId())
-                .url(jobOfferResponseDto.url())
-                .jobName(jobOfferResponseDto.jobName())
+                .url(jobOfferResponseDto.offerUrl())
+                .jobName(jobOfferResponseDto.title())
                 .company(jobOfferResponseDto.company())
                 .salary(jobOfferResponseDto.salary())
                 .build();
