@@ -1,16 +1,38 @@
 package pl.joboffers.feature;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import pl.joboffers.BaseIntegrationTest;
+import pl.joboffers.domain.joboffers.JobOfferFetcher;
+import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest {
+
+    @Autowired
+    JobOfferFetcher jobOfferFetcher;
 
     @Test
     public void user_should_get_job_offers_from_external_server_and_add_new_to_local_databse_but_should_be_logged_and_external_server_should_have_offers() {
 
-   /*
-    step 1: scheduler ran 1st time and made GET to external server
-    step 2: user made GET /offers with no jwt token and system returned UNAUTHORIZED(401)
+
+   //step 1: scheduler ran 1st time and made GET to external server, server return empty array
+        //given
+        wireMockServer.stubFor(WireMock.get("/offers")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("[]")));
+        //when
+        List<JobOfferResponseDto> jobOfferResponseDtos = jobOfferFetcher.fetchAllJobOffers();
+        //then
+        assertThat(jobOfferResponseDtos.isEmpty());
+    /*step 2: user made GET /offers with no jwt token and system returned UNAUTHORIZED(401)
     step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
     step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
     step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
