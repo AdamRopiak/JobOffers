@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import pl.joboffers.BaseIntegrationTest;
+import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFetcher;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest {
+public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest implements SampleJobOfferResponse {
 
     @Autowired
     JobOfferFetcher jobOfferFetcher;
@@ -27,11 +28,11 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
-                        .withBody("[]")));
+                        .withBody(bodyWithZeroOffersJson())));
         //when
         List<JobOfferResponseDto> jobOfferResponseDtos = jobOfferFetcher.fetchAllJobOffers();
         //then
-        assertThat(jobOfferResponseDtos.isEmpty());
+        assertThat(jobOfferResponseDtos).isEmpty();
     /*step 2: user made GET /offers with no jwt token and system returned UNAUTHORIZED(401)
     step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
     step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
