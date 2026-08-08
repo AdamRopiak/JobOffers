@@ -1,6 +1,7 @@
 package pl.joboffers.domain.joboffers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 
 import java.util.List;
