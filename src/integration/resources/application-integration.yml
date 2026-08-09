@@ -1,0 +1,5 @@
+joboffers:
+  jobfetcher:
+    scheduler:
+      joboffers:
+        delay: "* */10 * * * *"

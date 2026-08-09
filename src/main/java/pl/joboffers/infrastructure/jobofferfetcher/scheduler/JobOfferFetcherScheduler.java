@@ -16,11 +16,10 @@ public class JobOfferFetcherScheduler {
 
     private final JobOfferFacade jobOfferFacade;
 
-    @Scheduled(cron = "* */1 * * * * ")
+    @Scheduled(cron = "${joboffers.fetcher.scheduler.joboffers.delay}")
     public List<JobOfferResponseDto> fetchJobOfferWithSchedulerFromRemote(){
         log.info("Scheduled offer fetching has started.");
-        List<JobOfferResponseDto> jobOfferResponseDtos = jobOfferFacade.fetchAllJobOffersAndSave();
-        return jobOfferResponseDtos;
+        return jobOfferFacade.fetchAllJobOffersAndSave();
     }
 
 }

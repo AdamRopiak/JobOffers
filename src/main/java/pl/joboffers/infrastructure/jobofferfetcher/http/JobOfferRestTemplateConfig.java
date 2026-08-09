@@ -17,11 +17,13 @@ public class JobOfferRestTemplateConfig {
     }
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateResponseErrorHandler restTemplateResponseErrorHandler) {
+    public RestTemplate restTemplate(RestTemplateResponseErrorHandler restTemplateResponseErrorHandler,
+                                     @Value("${joboffers.jobfetcher.http.client.config.connectionTimeOut}") long connectionTimeout,
+                                     @Value("${joboffers.jobfetcher.http.client.config.connectionReadOut}") long readTimeout) {
         return new RestTemplateBuilder()
                 .errorHandler(restTemplateResponseErrorHandler)
-                .setConnectTimeout(Duration.ofMillis(5000))
-                .setReadTimeout(Duration.ofMillis(5000))
+                .setConnectTimeout(Duration.ofMillis(connectionTimeout))
+                .setReadTimeout(Duration.ofMillis(readTimeout))
                 .build();
     }
 
