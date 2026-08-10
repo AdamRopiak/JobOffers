@@ -18,8 +18,8 @@ public class JobOfferRestTemplateConfig {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateResponseErrorHandler restTemplateResponseErrorHandler,
-                                     @Value("${joboffers.jobfetcher.http.client.config.connectionTimeOut}") long connectionTimeout,
-                                     @Value("${joboffers.jobfetcher.http.client.config.connectionReadOut}") long readTimeout) {
+                                     @Value("${joboffers.jobfetcher.http.client.config.connectionTimeOut:5000}") long connectionTimeout,
+                                     @Value("${joboffers.jobfetcher.http.client.config.connectionReadOut:5000}") long readTimeout) {
         return new RestTemplateBuilder()
                 .errorHandler(restTemplateResponseErrorHandler)
                 .setConnectTimeout(Duration.ofMillis(connectionTimeout))

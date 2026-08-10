@@ -2,4 +2,6 @@ joboffers:
   jobfetcher:
     scheduler:
       joboffers:
-        delay: "* */10 * * * *"
+        delay: PT1S
+scheduling:
+  enabled: false

@@ -4,15 +4,18 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFetcher;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherScheduler;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest implements SampleJobOfferResponse {
 

@@ -16,7 +16,7 @@ public class JobOfferFetcherScheduler {
 
     private final JobOfferFacade jobOfferFacade;
 
-    @Scheduled(cron = "${joboffers.fetcher.scheduler.joboffers.delay}")
+    @Scheduled(fixedDelayString = "${joboffers.jobfetcher.scheduler.joboffers.delay}")
     public List<JobOfferResponseDto> fetchJobOfferWithSchedulerFromRemote(){
         log.info("Scheduled offer fetching has started.");
         return jobOfferFacade.fetchAllJobOffersAndSave();

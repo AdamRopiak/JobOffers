@@ -16,4 +16,6 @@ joboffers:
           readTimeOut: 5000
     scheduler:
       joboffers:
-        delay: "0 0 23 * * *"
+        delay: PT3H
+scheduling:
+  enabled: true
