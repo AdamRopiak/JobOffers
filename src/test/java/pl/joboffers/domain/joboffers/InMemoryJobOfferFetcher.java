@@ -10,9 +10,9 @@ public class InMemoryJobOfferFetcher implements JobOfferFetcher {
 
     public InMemoryJobOfferFetcher(){
         this.mockedJobOffers = List.of(
-                new JobOfferResponseDto("1", "www.joboffer1.com", "Senior Developer", "Javax", "15.234"),
-                new JobOfferResponseDto("2", "www.joboffer2.com", "Senior Java Developer", "Testowa firma", "150.234"),
-                new JobOfferResponseDto("3", "www.joboffer3.com", "Junior Java Developer", "FBI", "234.23")
+                new JobOfferResponseDto("Senior Developer", "Javax", "15.234", "www.joboffer1.com"),
+                new JobOfferResponseDto("Senior Java Developer", "Testowa firma", "150.234", "www.joboffer2.com"),
+                new JobOfferResponseDto("Junior Java Developer", "FBI", "234.23", "www.joboffer3.com")
         );
     }
 
