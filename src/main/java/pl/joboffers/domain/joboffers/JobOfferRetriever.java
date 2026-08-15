@@ -1,7 +1,6 @@
 package pl.joboffers.domain.joboffers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 
 import java.util.List;
@@ -12,7 +11,7 @@ class JobOfferRetriever {
     private final JobOfferRepository jobOfferRepository;
 
     List<JobOfferDto> findAllJobsOffer() {
-        return jobOfferRepository.findAllJobOffers()
+        return jobOfferRepository.findAll()
                 .stream()
                 .map(JobOfferMapper::mapFromJobOfferToJobOfferDto)
                 .toList();
@@ -25,6 +24,6 @@ class JobOfferRetriever {
     }
 
     public boolean existJobOfferByUrl(String url) {
-        return jobOfferRepository.existJobOfferByUrl(url);
+        return jobOfferRepository.existsJobOfferByUrl(url);
     }
 }

@@ -4,10 +4,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
+@Repository
 public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
-    List<JobOffer> findAllJobOffers();
+    List<JobOffer> findAll();
 
-    boolean existJobOfferByUrl(String url);
+    boolean existsJobOfferByUrl(String url);
 }

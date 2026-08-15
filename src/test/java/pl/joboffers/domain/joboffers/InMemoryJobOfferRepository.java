@@ -18,7 +18,7 @@ public class InMemoryJobOfferRepository implements JobOfferRepository {
     Map<String, JobOffer> databaseById = new ConcurrentHashMap<>();
 
     @Override
-    public List<JobOffer> findAllJobOffers() {
+    public List<JobOffer> findAll() {
         return databaseById.values().stream().toList();
     }
 
@@ -44,7 +44,7 @@ public class InMemoryJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public boolean existJobOfferByUrl(String url) {
+    public boolean existsJobOfferByUrl(String url) {
         return databaseById.values().stream()
                 .anyMatch(entity -> entity.url().equals(url));
     }
@@ -105,10 +105,10 @@ public class InMemoryJobOfferRepository implements JobOfferRepository {
         return false;
     }
 
-    @Override
+  /*  @Override
     public List<JobOffer> findAll() {
         return List.of();
-    }
+    }*/
 
     @Override
     public List<JobOffer> findAllById(Iterable<String> strings) {
