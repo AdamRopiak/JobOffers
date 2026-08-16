@@ -36,17 +36,29 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                         .withHeader("Content-Type", "application/json")
                         .withBody(bodyWithZeroOffersJson())));
         //when
-        List<JobOfferResponseDto> jobOfferResponseDtos = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
+        List<JobOfferResponseDto> emptyJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
-        assertThat(jobOfferResponseDtos).isEmpty();
+        assertThat(emptyJobOffersList).isEmpty();
     /*step 2: user made GET /offers with no jwt token and system returned UNAUTHORIZED(401)
     step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
     step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
     step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
     step 6: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200)
     step 7: there are 2 new offers in external HTTP server
-    step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 1 and 2 to database
-    step 9: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers with ids: 1 and 2
+    step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 0 and 1 to database*/
+
+        //given
+        wireMockServer.stubFor(WireMock.get("/offers")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(bodyWithTwoOffersJson())));
+        //when
+        List<JobOfferResponseDto> twoJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
+        //then
+        assertThat(twoJobOffersList).hasSize(2);
+
+    /*step 9: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers with ids: 1 and 2
     step 10: user made GET /offers/9999 with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”
     step 11: user made GET /offers/1 with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer
     step 12: user tried to POST /offers with no jwt token and system returned UNAUTHORIZED(401)

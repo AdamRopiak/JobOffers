@@ -23,7 +23,7 @@ public class JobOfferFacade {
     }
 
     public boolean existsByUrl(String url) {
-        return jobOfferRetriever.existJobOfferByUrl(url);
+        return jobOfferRetriever.existsJobOfferByUrl(url);
     }
 
     public List<JobOfferResponseDto> fetchAllJobOffersAndSave() {

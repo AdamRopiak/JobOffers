@@ -3,7 +3,7 @@ spring:
     name: joboffers
   data:
     mongodb:
-      uri: mongodb://admin:admin@localhost:27017/job-offers
+      uri: mongodb://root:example@localhost:27017/job-offers?authSource=admin
 
 joboffers:
   jobfetcher:

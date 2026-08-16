@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
 import java.util.List;
-import java.util.Objects;
 
 @AllArgsConstructor
 public class JobOfferFetcherService {
@@ -15,9 +14,8 @@ public class JobOfferFetcherService {
     List<JobOfferResponseDto> fetchAllJobOffersAndSave() {
         List<JobOfferResponseDto> fetchedJobOffers = jobOfferFetcher.fetchAllJobOffers();
         return fetchedJobOffers.stream()
-                .filter(Objects::nonNull)
                 .filter(fetched -> fetched.offerUrl() !=null)
-                .filter(fetched -> !jobOfferRepository.existJobOfferByUrl(fetched.offerUrl()))
+                .filter(fetched -> !jobOfferRepository.existsJobOfferByUrl(fetched.offerUrl()))
                 .map(JobOfferMapper::mapFromJobOfferResponseDtoToJobOffer)
                 .map(jobOfferRepository::save)
                 .map(JobOfferMapper::mapFromJobOfferToJobOfferResponseDto)
