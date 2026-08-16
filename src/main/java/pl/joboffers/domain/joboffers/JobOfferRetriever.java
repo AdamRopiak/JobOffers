@@ -23,7 +23,7 @@ class JobOfferRetriever {
                 .orElseThrow(()->new JobOfferNotFoundException("Job offer not found"));
     }
 
-    public boolean existJobOfferByUrl(String url) {
+    public boolean existsJobOfferByUrl(String url) {
         return jobOfferRepository.existsJobOfferByUrl(url);
     }
 }
