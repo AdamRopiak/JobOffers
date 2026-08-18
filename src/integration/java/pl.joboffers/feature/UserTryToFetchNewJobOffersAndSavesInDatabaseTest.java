@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
-                        .withBody(bodyWithZeroOffersJson())));
+                        .withBody(bodyWithFourOffersJson())));
         //when
         List<JobOfferResponseDto> emptyJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
@@ -47,14 +48,19 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
     step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
     step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC*/
-    //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200))
-        //given && when && then
-        mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+    //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
+        //given && when
+        ResultActions getZeroOffers = mockMvc.perform(get("/offers")
+                        .contentType(MediaType.APPLICATION_JSON));
+        MvcResult getZeroOffersResult = getZeroOffers.andExpect(status().isOk()).andReturn();
+        String getZeroOffersAsString = getZeroOffersResult.getResponse().getContentAsString();
+        List<JobOfferResponseDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
+        });
+        //then
+        assertThat(offers).isEmpty();
 
 
-    //step 7: there are 2 new offers in external HTTP server
+        //step 7: there are 2 new offers in external HTTP server
     //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 0 and 1 to database
         //given
         wireMockServer.stubFor(WireMock.get("/offers")
