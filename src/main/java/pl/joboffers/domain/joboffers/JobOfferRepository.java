@@ -9,5 +9,5 @@ import java.util.List;
 public interface JobOfferRepository extends MongoRepository<JobOffer, String> {
     List<JobOffer> findAll();
 
-    boolean existsJobOfferByUrl(String url);
+    boolean existsJobOfferByOfferUrl(String url);
 }

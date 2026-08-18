@@ -24,6 +24,6 @@ class JobOfferRetriever {
     }
 
     public boolean existsJobOfferByUrl(String url) {
-        return jobOfferRepository.existsJobOfferByUrl(url);
+        return jobOfferRepository.existsJobOfferByOfferUrl(url);
     }
 }

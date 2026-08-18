@@ -9,9 +9,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 @Document
 public record JobOffer(
         @Id
-        String jobId,
-        @Indexed(unique=true)  String url,
-        String jobName,
+        String offerId,
+        @Indexed(unique=true)  String offerUrl,
+        String title,
         String company,
         String salary) {
 }
