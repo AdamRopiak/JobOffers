@@ -3,7 +3,7 @@ package pl.joboffers.domain.joboffers;
 import lombok.AllArgsConstructor;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
-import pl.joboffers.domain.joboffers.dto.JobOfferRequestDto;
+import pl.joboffers.infrastructure.joboffers.controller.JobOfferRequestDto;
 
 import java.util.List;
 

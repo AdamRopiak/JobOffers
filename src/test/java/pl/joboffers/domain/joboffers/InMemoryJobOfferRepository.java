@@ -24,17 +24,17 @@ public class InMemoryJobOfferRepository implements JobOfferRepository {
 
     @Override
     public <S extends JobOffer> S save(S entity) {
-        String id = (entity.jobId() != null && !entity.jobId().isEmpty())
-                ? entity.jobId()
+        String id = (entity.offerId() != null && !entity.offerId().isEmpty())
+                ? entity.offerId()
                 : UUID.randomUUID().toString();
         JobOffer jobOffer = new JobOffer(
                 id,
-                entity.url(),
-                entity.jobName(),
+                entity.offerUrl(),
+                entity.title(),
                 entity.company(),
                 entity.salary()
         );
-        databaseById.put(jobOffer.jobId(), entity);
+        databaseById.put(jobOffer.offerId(), entity);
         return entity;
     }
 
@@ -44,9 +44,9 @@ public class InMemoryJobOfferRepository implements JobOfferRepository {
     }
 
     @Override
-    public boolean existsJobOfferByUrl(String url) {
+    public boolean existsJobOfferByOfferUrl(String url) {
         return databaseById.values().stream()
-                .anyMatch(entity -> entity.url().equals(url));
+                .anyMatch(entity -> entity.offerUrl().equals(url));
     }
 
 

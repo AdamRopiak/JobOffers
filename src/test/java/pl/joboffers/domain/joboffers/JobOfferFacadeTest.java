@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.junit.jupiter.api.Test;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
-import pl.joboffers.domain.joboffers.dto.JobOfferRequestDto;
+import pl.joboffers.infrastructure.joboffers.controller.JobOfferRequestDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
 import java.util.List;
@@ -75,8 +75,8 @@ public class JobOfferFacadeTest {
         JobOfferDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(juniorJavaDeveloper);
 
         //then
-        assertThat(jobOfferResponse.url()).isEqualTo("www.joboffer1.com");
-        assertThat(jobOfferResponse.jobName()).isEqualTo("Junior Java Developer");
+        assertThat(jobOfferResponse.offerUrl()).isEqualTo("www.joboffer1.com");
+        assertThat(jobOfferResponse.title()).isEqualTo("Junior Java Developer");
         int size = jobOfferFacade.findAllJobsOffers().size();
         assertThat(size).isEqualTo(1);
     }
@@ -106,13 +106,13 @@ public class JobOfferFacadeTest {
         JobOfferDto jobOfferResponse = jobOfferFacade.saveNewJobOffer(jobOfferRequest);
 
         //when
-        JobOfferDto jobOfferById = jobOfferFacade.findJobOfferById(jobOfferResponse.jobId());
+        JobOfferDto jobOfferById = jobOfferFacade.findJobOfferById(jobOfferResponse.offerId());
 
         //then
         assertThat(jobOfferById).isEqualTo(JobOfferDto.builder()
-                        .jobId(jobOfferById.jobId())
-                        .url("www.joboffer1.com")
-                        .jobName("Junior Java Developer")
+                        .offerId(jobOfferById.offerId())
+                        .offerUrl("www.joboffer1.com")
+                        .title("Junior Java Developer")
                         .company("Firma krzak")
                         .salary("15.21")
                 .build());

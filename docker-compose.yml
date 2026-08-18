@@ -21,8 +21,9 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/?authSource=admin # mongodb://{mongo-image-username}:{mongo-image-password}@{mongo-image-name}:{port}
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@joboffers-mongo-1:27017/?authSource=admin # mongodb://{mongo-image-username}:{mongo-image-password}@{mongo-image-name}:{port}
       ME_CONFIG_BASICAUTH_USERNAME: express
       ME_CONFIG_BASICAUTH_PASSWORD: express
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: true
 
 
