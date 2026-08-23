@@ -92,7 +92,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 )
                 .contentType(MediaType.APPLICATION_JSON));
         //when & then
-        MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
+        MvcResult mvcResult = perform.andExpect(status().isCreated()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         JobOfferResponseDto jobOfferResponseDto = objectMapper.readValue(contentAsString, JobOfferResponseDto.class);
         assertAll(
