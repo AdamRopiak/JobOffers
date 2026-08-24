@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.junit.jupiter.api.Test;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
-import pl.joboffers.infrastructure.joboffers.controller.JobOfferRequestDto;
+import pl.joboffers.infrastructure.joboffers.controller.dto.JobOfferRequestDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
 import java.util.List;
@@ -152,7 +152,7 @@ public class JobOfferFacadeTest {
 
         //then
         assertThat(throwable).isInstanceOf(JobOfferNotFoundException.class);
-        assertThat(throwable.getMessage()).isEqualTo("Job offer not found");
+        assertThat(throwable.getMessage()).isEqualTo("Job offer with id: 2 not found");
 
     }
 }

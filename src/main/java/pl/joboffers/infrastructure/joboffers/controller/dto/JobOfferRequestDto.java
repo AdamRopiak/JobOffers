@@ -1,4 +1,4 @@
-package pl.joboffers.infrastructure.joboffers.controller;
+package pl.joboffers.infrastructure.joboffers.controller.dto;
 
 import lombok.Builder;
 

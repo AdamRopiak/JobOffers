@@ -2,7 +2,7 @@ package pl.joboffers.domain.joboffers;
 
 import lombok.RequiredArgsConstructor;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
-import pl.joboffers.infrastructure.joboffers.controller.JobOfferRequestDto;
+import pl.joboffers.infrastructure.joboffers.controller.dto.JobOfferRequestDto;
 
 @RequiredArgsConstructor
 class JobOfferAdder {
