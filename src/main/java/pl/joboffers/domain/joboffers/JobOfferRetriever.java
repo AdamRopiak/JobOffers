@@ -20,7 +20,7 @@ class JobOfferRetriever {
     JobOfferDto findJobOfferById(String jobId) {
         return jobOfferRepository.findById(jobId)
                 .map(JobOfferMapper::mapFromJobOfferToJobOfferDto)
-                .orElseThrow(()->new JobOfferNotFoundException("Job offer not found"));
+                .orElseThrow(()->new JobOfferNotFoundException("Job offer with id: " + jobId +" not found"));
     }
 
     public boolean existsJobOfferByUrl(String url) {

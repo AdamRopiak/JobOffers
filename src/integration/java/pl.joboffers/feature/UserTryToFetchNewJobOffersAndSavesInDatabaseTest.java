@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.SampleJobOfferResponse;
+import pl.joboffers.domain.joboffers.JobOfferFacade;
 import pl.joboffers.domain.joboffers.JobOfferFetcher;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherScheduler;
@@ -16,6 +17,7 @@ import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherSche
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -30,6 +32,9 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     @Autowired
     JobOfferFetcherScheduler jobOfferFetcherScheduler;
 
+    @Autowired
+    JobOfferFacade jobOfferFacade;
+
     @Test
     public void user_should_get_job_offers_from_external_server_and_add_new_to_local_databse_but_should_be_logged_and_external_server_should_have_offers() throws Exception {
 
@@ -39,7 +44,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
-                        .withBody(bodyWithFourOffersJson())));
+                        .withBody(bodyWithZeroOffersJson())));
         //when
         List<JobOfferResponseDto> emptyJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
@@ -73,9 +78,24 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(twoJobOffersList).hasSize(2);
 
-    /*step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
-    step 10: user made GET /offers/9999 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”)
-    step 11: user made GET /offers/1 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
+    //step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
+    //step 10: user made GET /offers/9999 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”)
+        //given
+        //when
+            ResultActions getNotExistingJobOffer = mockMvc.perform(get("/offers/9999")
+                    .contentType(MediaType.APPLICATION_JSON));
+        //then
+            getNotExistingJobOffer.andExpect(status().isNotFound())
+                    .andExpect(content().json(
+                            """
+                            {
+                            "message": "Job offer with id: 9999 not found",
+                            "status": "NOT_FOUND"
+                            }
+                            """.trim()
+                    ));
+
+    /*step 11: user made GET /offers/1 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
     step 12: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
     step 13: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
         //given
@@ -92,7 +112,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 )
                 .contentType(MediaType.APPLICATION_JSON));
         //when & then
-        MvcResult mvcResult = perform.andExpect(status().isCreated()).andReturn();
+        MvcResult mvcResult = perform.andExpect(status().isOk()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
         JobOfferResponseDto jobOfferResponseDto = objectMapper.readValue(contentAsString, JobOfferResponseDto.class);
         assertAll(

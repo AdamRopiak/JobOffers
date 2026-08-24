@@ -1,7 +1,7 @@
 package pl.joboffers.domain.joboffers;
 
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
-import pl.joboffers.infrastructure.joboffers.controller.JobOfferRequestDto;
+import pl.joboffers.infrastructure.joboffers.controller.dto.JobOfferRequestDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
 import java.util.UUID;
