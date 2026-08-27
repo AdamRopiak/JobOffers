@@ -1,5 +1,6 @@
 package pl.joboffers.infrastructure.joboffers.controller;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class JobOfferRestController {
     private final JobOfferFacade jobOfferFacade;
 
     @PostMapping
-    public ResponseEntity<JobOfferDto> addNewJobOffer(@RequestBody JobOfferRequestDto jobOfferRequestDto){
+    public ResponseEntity<JobOfferDto> addNewJobOffer(@RequestBody @Valid JobOfferRequestDto jobOfferRequestDto){
         JobOfferDto jobOfferDto = jobOfferFacade.saveNewJobOffer(jobOfferRequestDto);
         log.info("New JobOffer: "+ jobOfferDto.title() + " with URL: "+ jobOfferRequestDto.offerUrl() + " saved");
         return ResponseEntity.status(HttpStatus.CREATED).body(jobOfferDto);
