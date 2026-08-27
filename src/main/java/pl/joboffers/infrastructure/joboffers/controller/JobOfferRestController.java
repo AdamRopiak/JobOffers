@@ -2,6 +2,7 @@ package pl.joboffers.infrastructure.joboffers.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.joboffers.domain.joboffers.JobOfferFacade;
@@ -22,7 +23,7 @@ public class JobOfferRestController {
     public ResponseEntity<JobOfferDto> addNewJobOffer(@RequestBody JobOfferRequestDto jobOfferRequestDto){
         JobOfferDto jobOfferDto = jobOfferFacade.saveNewJobOffer(jobOfferRequestDto);
         log.info("New JobOffer: "+ jobOfferDto.title() + " with URL: "+ jobOfferRequestDto.offerUrl() + " saved");
-        return ResponseEntity.ok(jobOfferDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(jobOfferDto);
     }
 
     @GetMapping
