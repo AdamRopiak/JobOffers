@@ -65,16 +65,15 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(offers).isEmpty();
 
-
-        //step 7: there are 2 new offers in external HTTP server
-    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 0 and 1 to database
-        //given
+    //step 7: there are 2 new offers in external HTTP server
+        //given && when && then
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
                         .withBody(bodyWithTwoOffersJson())));
-        //when
+    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 0 and 1 to database
+        //given && when
         List<JobOfferResponseDto> twoJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
         assertThat(twoJobOffersList).hasSize(2);
