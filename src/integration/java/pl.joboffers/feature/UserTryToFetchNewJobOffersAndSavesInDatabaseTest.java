@@ -11,6 +11,7 @@ import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFacade;
 import pl.joboffers.domain.joboffers.JobOfferFetcher;
+import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherScheduler;
 
@@ -95,10 +96,11 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                             """.trim()
                     ));
 
-    /*step 11: user made GET /offers/1 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
-    step 12: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
+
+    /*step 12: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
     step 13: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
         //given
+        //when
         ResultActions perform = mockMvc.perform(post("/offers")
                 .content(
                         """
@@ -106,22 +108,43 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                                 "title": "Junior DevOps Engineer",
                                 "company": "CDQ Poland",
                                 "salary": "8k - 14k PLN",
-                                "offerUrl": "https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd"
+                                "offerUrl": "https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd2"
                                 }        
                                 """.trim()
                 )
-                .contentType(MediaType.APPLICATION_JSON));
-        //when & then
+                .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8"));
+        //then
         MvcResult mvcResult = perform.andExpect(status().isCreated()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        JobOfferResponseDto jobOfferResponseDto = objectMapper.readValue(contentAsString, JobOfferResponseDto.class);
+
+        JobOfferDto jobOfferDto = objectMapper.readValue(contentAsString, JobOfferDto.class);
+        String postedJobOfferId = jobOfferDto.offerId();
         assertAll(
-                () -> assertThat(jobOfferResponseDto.offerUrl()).isEqualTo("https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd"),
-                () -> assertThat(jobOfferResponseDto.title()).isEqualTo("Junior DevOps Engineer")
+                () -> assertThat(jobOfferDto.offerUrl()).isEqualTo("https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd2"),
+                () -> assertThat(jobOfferDto.title()).isEqualTo("Junior DevOps Engineer"),
+                () -> assertThat(jobOfferDto.offerId()).isNotNull()
         );
 
+    //step 11: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
+        //given
+        wireMockServer.stubFor(WireMock.get("/offers/" + postedJobOfferId)
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(bodyWithZeroOffersJson())));
+        //when
+        JobOfferDto jobOfferById = jobOfferFacade.findJobOfferById(postedJobOfferId);
+        //then
+        assertThat(jobOfferById).isEqualTo(
+                JobOfferDto.builder()
+                        .offerId(postedJobOfferId)
+                        .company("CDQ Poland")
+                        .salary("8k - 14k PLN")
+                        .offerUrl("https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd2")
+                        .title("Junior DevOps Engineer")
+                        .build()
 
-
+        );
     /*step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers with ids: 1, 2 and 3)
     step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 4 and 5 to database
     step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers with ids: 1, 2, 3, 4 and 5)*/

@@ -4,6 +4,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:example@localhost:27017/job-offers?authSource=admin
+      auto-index-creation: true
 
 joboffers:
   jobfetcher:
