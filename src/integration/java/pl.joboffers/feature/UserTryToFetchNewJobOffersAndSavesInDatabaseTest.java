@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFacade;
-import pl.joboffers.domain.joboffers.JobOfferFetcher;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherScheduler;
@@ -28,8 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest implements SampleJobOfferResponse {
 
-    @Autowired
-    JobOfferFetcher jobOfferFetcher;
     @Autowired
     JobOfferFetcherScheduler jobOfferFetcherScheduler;
 
@@ -50,6 +47,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         List<JobOfferResponseDto> emptyJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
         assertThat(emptyJobOffersList).isEmpty();
+
     /*step 2: user made GET /offers -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
     step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
     step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
@@ -161,9 +159,22 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                         .build()
 
         );
-    /*step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
-    step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 4 and 5 to database
-    step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers */
+
+    //step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
+        //given
+        ResultActions getThreeNewOffers = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //when
+        MvcResult getThreeOffersResult = getThreeNewOffers.andExpect(status().isOk()).andReturn();
+        String getThreeOffersAsString = getThreeOffersResult.getResponse().getContentAsString();
+        List<JobOfferDto> threeOffers = objectMapper.readValue(getThreeOffersAsString, new TypeReference<>() {
+        });
+        //then
+        assertThat(threeOffers).hasSize(3);
+
+    //step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 4 and 5 to database
+    //step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
 
     /* ---- EXTRA STEP WITH CACHE ----
     step 17: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
