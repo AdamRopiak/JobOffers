@@ -190,6 +190,18 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpndfsd"));
 
     //step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
+        //given
+        ResultActions getAllJobOffers = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //when
+        MvcResult getAllJobOffersResult = getAllJobOffers.andExpect(status().isOk()).andReturn();
+        String getAllOffersAsString = getAllJobOffersResult.getResponse().getContentAsString();
+        List<JobOfferDto> allOffers = objectMapper.readValue(getAllOffersAsString, new TypeReference<>() {
+        });
+        //then
+        assertThat(allOffers).hasSize(5);
+
 
     /* ---- EXTRA STEP WITH CACHE ----
     step 17: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
