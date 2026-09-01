@@ -21,7 +21,6 @@ public class JobOfferFetcherRestTemplate implements JobOfferFetcher {
 
     private final RestTemplate restTemplate;
     private final String uri;
-    private final int port;
 
 
 
@@ -63,6 +62,6 @@ public class JobOfferFetcherRestTemplate implements JobOfferFetcher {
     }
 
     private String getUrlForService(String service) {
-        return uri + ":" + port + service;
+        return uri + service;
     }
 }

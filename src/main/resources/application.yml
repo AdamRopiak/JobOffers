@@ -11,8 +11,7 @@ joboffers:
     http:
       client:
         config:
-          uri: http://ec2-18-194-181-208.eu-central-1.compute.amazonaws.com
-          port: 5057
+          uri: https://fake-java-offers-api.onrender.com
           connectionTimeOut: 5000
           readTimeOut: 5000
     scheduler:
