@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFacade;
-import pl.joboffers.domain.joboffers.JobOfferFetcher;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherScheduler;
@@ -28,8 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest implements SampleJobOfferResponse {
 
-    @Autowired
-    JobOfferFetcher jobOfferFetcher;
     @Autowired
     JobOfferFetcherScheduler jobOfferFetcherScheduler;
 
@@ -50,36 +47,66 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         List<JobOfferResponseDto> emptyJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
         assertThat(emptyJobOffersList).isEmpty();
+
     /*step 2: user made GET /offers -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
     step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
     step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
     step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC*/
+
     //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
         //given && when
         ResultActions getZeroOffers = mockMvc.perform(get("/offers")
                         .contentType(MediaType.APPLICATION_JSON));
         MvcResult getZeroOffersResult = getZeroOffers.andExpect(status().isOk()).andReturn();
         String getZeroOffersAsString = getZeroOffersResult.getResponse().getContentAsString();
-        List<JobOfferResponseDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
+        List<JobOfferDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
         });
         //then
         assertThat(offers).isEmpty();
 
-
-        //step 7: there are 2 new offers in external HTTP server
-    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 0 and 1 to database
-        //given
+    //step 7: there are 2 new offers in external HTTP server
+        //given && when && then
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
                         .withBody(bodyWithTwoOffersJson())));
-        //when
+
+    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers
+        //given && when
         List<JobOfferResponseDto> twoJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
         assertThat(twoJobOffersList).hasSize(2);
+        assertThat(twoJobOffersList).contains(new JobOfferResponseDto( "Junior DevOps Engineer",
+                "CDQ Poland",
+                "8k - 14k PLN",
+                "https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd"),
+                new JobOfferResponseDto("Software Engineer - Mobile (m/f/d)",
+                "Cybersource",
+                 "4k - 8k PLN",
+                "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpn"));
 
     //step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
+        //given
+        ResultActions getTwoNewOffers = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //when
+        MvcResult getTwoOffersResult = getTwoNewOffers.andExpect(status().isOk()).andReturn();
+        String getTwoOffersAsString = getTwoOffersResult.getResponse().getContentAsString();
+        List<JobOfferDto> twoOffers = objectMapper.readValue(getTwoOffersAsString, new TypeReference<>() {
+        });
+        String newJobOfferId = twoOffers.get(0).offerId();
+        //then
+        assertThat(twoOffers).hasSize(2);
+        assertThat(twoOffers).contains(new JobOfferDto(  newJobOfferId,
+                "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpn",
+                "Software Engineer - Mobile (m/f/d)",
+                "Cybersource",
+                "4k - 8k PLN"
+                ));
+
+
     //step 10: user made GET /offers/9999 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”)
         //given
         //when
@@ -97,8 +124,10 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                     ));
 
 
-    /*step 12: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
-    step 13: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
+    /*step 11: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
+
+
+    step 12: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
         //given
         //when
         ResultActions perform = mockMvc.perform(post("/offers")
@@ -125,7 +154,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 () -> assertThat(jobOfferDto.offerId()).isNotNull()
         );
 
-    //step 11: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
+    //step 13: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
         //given
         wireMockServer.stubFor(WireMock.get("/offers/" + postedJobOfferId)
                 .willReturn(WireMock.aResponse()
@@ -145,9 +174,49 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                         .build()
 
         );
-    /*step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers with ids: 1, 2 and 3)
-    step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 4 and 5 to database
-    step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers with ids: 1, 2, 3, 4 and 5)*/
+
+    //step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
+        //given
+        ResultActions getThreeNewOffers = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //when
+        MvcResult getThreeOffersResult = getThreeNewOffers.andExpect(status().isOk()).andReturn();
+        String getThreeOffersAsString = getThreeOffersResult.getResponse().getContentAsString();
+        List<JobOfferDto> threeOffers = objectMapper.readValue(getThreeOffersAsString, new TypeReference<>() {
+        });
+        //then
+        assertThat(threeOffers).hasSize(3);
+
+    //step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers
+        //given
+        wireMockServer.stubFor(WireMock.get("/offers")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(bodyWithTwoNewOffersJson())));
+        //when
+        List<JobOfferResponseDto> twoNewJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
+        //then
+        assertThat(twoNewJobOffersList).hasSize(2);
+        assertThat(twoNewJobOffersList).contains(new JobOfferResponseDto("Software Engineer - Mobile (m/f/d)",
+                "Cybersource",
+                "5k - 9k PLN",
+                "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpndfsd"));
+
+    //step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
+        //given
+        ResultActions getAllJobOffers = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        //when
+        MvcResult getAllJobOffersResult = getAllJobOffers.andExpect(status().isOk()).andReturn();
+        String getAllOffersAsString = getAllJobOffersResult.getResponse().getContentAsString();
+        List<JobOfferDto> allOffers = objectMapper.readValue(getAllOffersAsString, new TypeReference<>() {
+        });
+        //then
+        assertThat(allOffers).hasSize(5);
+
 
     /* ---- EXTRA STEP WITH CACHE ----
     step 17: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
