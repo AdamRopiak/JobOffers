@@ -173,7 +173,22 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(threeOffers).hasSize(3);
 
-    //step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 4 and 5 to database
+    //step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers
+        //given
+        wireMockServer.stubFor(WireMock.get("/offers")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(bodyWithTwoNewOffersJson())));
+        //when
+        List<JobOfferResponseDto> twoNewJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
+        //then
+        assertThat(twoNewJobOffersList).hasSize(2);
+        assertThat(twoNewJobOffersList).contains(new JobOfferResponseDto("Software Engineer - Mobile (m/f/d)",
+                "Cybersource",
+                "5k - 9k PLN",
+                "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpndfsd"));
+
     //step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
 
     /* ---- EXTRA STEP WITH CACHE ----

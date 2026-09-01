@@ -20,6 +20,24 @@ public interface SampleJobOfferResponse {
                 ]
                 """.trim();
     }
+    default String bodyWithTwoNewOffersJson() {
+        return """
+                [
+                {
+                    "title": "Software Engineer - Mobile (m/f/d)",
+                    "company": "Cybersource",
+                    "salary": "5k - 9k PLN",
+                    "offerUrl": "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpndfsd"
+                },
+                {
+                    "title": "Junior DevOps Engineer",
+                    "company": "CDQ Poland",
+                    "salary": "9k - 15k PLN",
+                    "offerUrl": "https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclawd"
+                }
+                ]
+                """.trim();
+    }
 
     default String bodyWithOneOfferJson() {
         return """
