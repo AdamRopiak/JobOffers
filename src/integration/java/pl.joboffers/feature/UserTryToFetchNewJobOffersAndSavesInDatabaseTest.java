@@ -59,7 +59,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                         .contentType(MediaType.APPLICATION_JSON));
         MvcResult getZeroOffersResult = getZeroOffers.andExpect(status().isOk()).andReturn();
         String getZeroOffersAsString = getZeroOffersResult.getResponse().getContentAsString();
-        List<JobOfferResponseDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
+        List<JobOfferDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
         });
         //then
         assertThat(offers).isEmpty();
@@ -72,11 +72,19 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                         .withHeader("Content-Type", "application/json")
                         .withBody(bodyWithTwoOffersJson())));
 
-    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 0 and 1 to database
+    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers
         //given && when
         List<JobOfferResponseDto> twoJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         //then
         assertThat(twoJobOffersList).hasSize(2);
+        assertThat(twoJobOffersList).contains(new JobOfferResponseDto( "Junior DevOps Engineer",
+                "CDQ Poland",
+                "8k - 14k PLN",
+                "https://nofluffjobs.com/pl/job/junior-devops-engineer-cdq-poland-wroclaw-gnymtxqd"),
+                new JobOfferResponseDto("Software Engineer - Mobile (m/f/d)",
+                "Cybersource",
+                 "4k - 8k PLN",
+                "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpn"));
 
     //step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
         //given
@@ -88,8 +96,15 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         String getTwoOffersAsString = getTwoOffersResult.getResponse().getContentAsString();
         List<JobOfferDto> twoOffers = objectMapper.readValue(getTwoOffersAsString, new TypeReference<>() {
         });
+        String newJobOfferId = twoOffers.get(0).offerId();
         //then
         assertThat(twoOffers).hasSize(2);
+        assertThat(twoOffers).contains(new JobOfferDto(  newJobOfferId,
+                "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpn",
+                "Software Engineer - Mobile (m/f/d)",
+                "Cybersource",
+                "4k - 8k PLN"
+                ));
 
 
     //step 10: user made GET /offers/9999 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”)
