@@ -25,7 +25,6 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 @AutoConfigureMockMvc
 @Testcontainers
 public class BaseIntegrationTest {
-    public static final String WIRE_MOCK_HOST = "http://localhost";
 
     @Autowired
     public MockMvc mockMvc;
@@ -45,6 +44,6 @@ public class BaseIntegrationTest {
     public static void propertyOvveride(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDbContainer::getReplicaSetUrl);
         registry.add("joboffers.jobfetcher.http.client.config.port", () -> wireMockServer.getPort());
-        registry.add("joboffers.jobfetcher.http.client.config.uri", () -> WIRE_MOCK_HOST);
+        registry.add("joboffers.jobfetcher.http.client.config.uri", () -> wireMockServer.baseUrl());
     }
 }

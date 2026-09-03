@@ -1,12 +1,18 @@
 package pl.joboffers.feature;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
+import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFacade;
@@ -24,8 +30,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+@Log4j2
 
 public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegrationTest implements SampleJobOfferResponse {
+    @Container
+    public static final MongoDBContainer mongoDbContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.2"));
+
+    @DynamicPropertySource
+    public static void propertyOvveride(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDbContainer::getReplicaSetUrl);
+        registry.add("joboffers.jobfetcher.http.client.config.port", () -> wireMockServer.getPort());
+        registry.add("joboffers.jobfetcher.http.client.config.uri", () -> wireMockServer.baseUrl());
+    }
 
     @Autowired
     JobOfferFetcherScheduler jobOfferFetcherScheduler;
@@ -75,6 +91,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers
         //given && when
         List<JobOfferResponseDto> twoJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
+        log.info("Unmatched requests: {}", wireMockServer.findAllUnmatchedRequests());
         //then
         assertThat(twoJobOffersList).hasSize(2);
         assertThat(twoJobOffersList).contains(new JobOfferResponseDto( "Junior DevOps Engineer",

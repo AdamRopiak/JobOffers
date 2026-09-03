@@ -2,8 +2,13 @@ package pl.joboffers.apivalidation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 import pl.joboffers.BaseIntegrationTest;
 import pl.joboffers.infrastructure.apivalidation.ApiValidtationErrorDto;
 
@@ -12,6 +17,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
+    @Container
+    public static final MongoDBContainer mongoDbContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.2"));
+
+    @DynamicPropertySource
+    public static void propertyOvveride(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDbContainer::getReplicaSetUrl);
+        registry.add("joboffers.jobfetcher.http.client.config.port", () -> wireMockServer.getPort());
+        registry.add("joboffers.jobfetcher.http.client.config.uri", () -> wireMockServer.baseUrl());
+    }
 
     @Test
     public void should_return_400_and_validation_message_when_request_url_is_empty() throws Exception {
