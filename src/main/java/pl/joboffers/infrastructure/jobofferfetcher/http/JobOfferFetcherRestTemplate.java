@@ -6,10 +6,12 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.joboffers.domain.joboffers.JobOfferFetcher;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,26 +28,30 @@ public class JobOfferFetcherRestTemplate implements JobOfferFetcher {
 
     @Override
     public List<JobOfferResponseDto> fetchAllJobOffers() {
-        log.info("Fetching starts.");
+        log.info(LocalDateTime.now() + " Fetching job offers starts.");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         final HttpEntity<HttpHeaders> requestEntity = new HttpEntity<>(headers);
         try {
             ResponseEntity<List<JobOfferResponseDto>> response = getListResponseEntity(requestEntity);
-            return getJobOfferResponseDto(response);
-        } catch (ResourceAccessException error) {
-            log.error("Error during fetching: " + error.getMessage());
+            List<JobOfferResponseDto> jobOfferResponseDto = getJobOfferResponseDto(response);
+            if(jobOfferResponseDto.size()!=0) {
+                return jobOfferResponseDto;
+            }
             return Collections.emptyList();
+        } catch (ResourceAccessException error) {
+            log.error(LocalDateTime.now() + " Error during fetching: " + error.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     private static List<JobOfferResponseDto> getJobOfferResponseDto(ResponseEntity<List<JobOfferResponseDto>> response) {
         final List<JobOfferResponseDto> results = response.getBody();
         if (results == null) {
-            log.info("Returned list is empty.");
-            return Collections.emptyList();
+            log.info(LocalDateTime.now() + " Returned list is empty.");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
         }
-        log.info("Fetching completed.");
+        log.info(LocalDateTime.now() + " Fetching completed.");
         return results;
     }
 
