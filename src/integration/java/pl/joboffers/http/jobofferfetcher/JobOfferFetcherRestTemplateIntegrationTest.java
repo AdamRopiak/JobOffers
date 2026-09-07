@@ -49,7 +49,7 @@ public class JobOfferFetcherRestTemplateIntegrationTest extends JobOfferRestTemp
     }
 
     @Test
-    public void empty_response(){
+    public void should_return_500_INTERNAL_SERVER_ERROR_when_get_empty_response_from_external_server(){
         //given
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
