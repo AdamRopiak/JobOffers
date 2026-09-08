@@ -64,12 +64,34 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(emptyJobOffersList).isEmpty();
 
-    /*step 2: user made GET /offers -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
-    step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
-    step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
-    step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC*/
+    //step 2: user try to get JWT token by request POST on /token with username=user and password=password and system return UNAUTHORIZED(401) - user is not in database
+        //given && when
+        ResultActions failedJwtTokenRequest = mockMvc.perform(post("/token")
+                .content("""
+                        {
+                        "username": "user",
+                        "password": "password"
+                        }
+                        """.trim())
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        failedJwtTokenRequest
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().json("""
+                       {
+                       "message": "Bad Credentials",
+                       "status": "UNAUTHORIZED"
+                       }
+                       """.trim()
+                ));
 
-    //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
+
+        //step 3: user made GET /offers -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401)
+    /*step 4: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
+    step 5: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
+    step 6: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC*/
+
+    //step 7: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
         //given && when
         ResultActions getZeroOffers = mockMvc.perform(get("/offers")
                         .contentType(MediaType.APPLICATION_JSON));
@@ -80,7 +102,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(offers).isEmpty();
 
-    //step 7: there are 2 new offers in external HTTP server
+    //step 8: there are 2 new offers in external HTTP server
         //given && when && then
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
@@ -88,7 +110,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                         .withHeader("Content-Type", "application/json")
                         .withBody(bodyWithTwoOffersJson())));
 
-    //step 8: scheduler ran 2nd time and made GET to external server and system added 2 new offers
+    //step 9: scheduler ran 2nd time and made GET to external server and system added 2 new offers
         //given && when
         List<JobOfferResponseDto> twoJobOffersList = jobOfferFetcherScheduler.fetchJobOfferWithSchedulerFromRemote();
         log.info("Unmatched requests: {}", wireMockServer.findAllUnmatchedRequests());
@@ -103,7 +125,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                  "4k - 8k PLN",
                 "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpn"));
 
-    //step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
+    //step 10: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
         //given
         ResultActions getTwoNewOffers = mockMvc.perform(get("/offers")
                 .contentType(MediaType.APPLICATION_JSON));
@@ -124,7 +146,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 ));
 
 
-    //step 10: user made GET /offers/9999 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”)
+    //step 11: user made GET /offers/9999 -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”)
         //given
         //when
             ResultActions getNotExistingJobOffer = mockMvc.perform(get("/offers/9999")
@@ -141,10 +163,10 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                     ));
 
 
-    /*step 11: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
+    /*step 12: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
 
 
-    step 12: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
+    step 13: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
         //given
         //when
         ResultActions perform = mockMvc.perform(post("/offers")
@@ -171,7 +193,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 () -> assertThat(jobOfferDto.offerId()).isNotNull()
         );
 
-    //step 13: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
+    //step 14: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
         //given
         wireMockServer.stubFor(WireMock.get("/offers/" + postedJobOfferId)
                 .willReturn(WireMock.aResponse()
@@ -192,7 +214,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
 
         );
 
-    //step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
+    //step 15: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
         //given
         ResultActions getThreeNewOffers = mockMvc.perform(get("/offers")
                 .contentType(MediaType.APPLICATION_JSON));
@@ -205,7 +227,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(threeOffers).hasSize(3);
 
-    //step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers
+    //step 16: scheduler ran 3rd time and made GET to external server and system added 2 new offers
         //given
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
@@ -221,7 +243,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 "5k - 9k PLN",
                 "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpndfsd"));
 
-    //step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
+    //step 17: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
         //given
         ResultActions getAllJobOffers = mockMvc.perform(get("/offers")
                 .contentType(MediaType.APPLICATION_JSON));
@@ -236,8 +258,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
 
 
     /* ---- EXTRA STEP WITH CACHE ----
-    step 17: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
-    step 18: 60 minutes passed, cache expired, and there are 2 new offers in external HTTP server
+    step 18: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
+    step 19: 60 minutes passed, cache expired, and there are 2 new offers in external HTTP server
      */
 
     }

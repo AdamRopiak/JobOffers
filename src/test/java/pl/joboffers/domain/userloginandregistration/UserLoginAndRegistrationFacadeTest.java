@@ -2,6 +2,7 @@ package pl.joboffers.domain.userloginandregistration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import pl.joboffers.domain.userloginandregistration.dto.NewUserRequestDto;
 import pl.joboffers.domain.userloginandregistration.dto.RegistrationResultDto;
 import pl.joboffers.domain.userloginandregistration.dto.UserDto;
@@ -41,7 +42,7 @@ public class UserLoginAndRegistrationFacadeTest {
         UserDto userDto = userFacade.findUserByUserName(results.userName());
 
         //then
-        assertThat(userDto).isEqualTo(new UserDto("User"));
+        assertThat(userDto).isEqualTo(new UserDto("User", "12345"));
     }
 
     @Test
@@ -53,7 +54,7 @@ public class UserLoginAndRegistrationFacadeTest {
         Throwable throwable = catchThrowable(() -> userFacade.findUserByUserName(userToFind));
 
         //then
-        assertThat(throwable).isInstanceOf(UserNotFoundException.class);
+        assertThat(throwable).isInstanceOf(UsernameNotFoundException.class);
         assertThat(throwable.getMessage()).isEqualTo("User not found");
 
 
