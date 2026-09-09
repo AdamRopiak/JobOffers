@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import pl.joboffers.domain.userloginandregistration.dto.NewUserRequestDto;
+import pl.joboffers.domain.userloginandregistration.dto.RegistrationResultDto;
 import pl.joboffers.infrastructure.security.jwt.JwtAuthenticator;
 import pl.joboffers.infrastructure.userloginandregistration.controller.dto.JwtTokenResponseDto;
 import pl.joboffers.infrastructure.userloginandregistration.controller.dto.LoginRequestDto;
@@ -21,4 +23,5 @@ public class UserLoginAndRegistrationController {
         JwtTokenResponseDto jwtTokenResponseDto = jwtAuthenticator.authenticateAndGenerateToken(loginRequestDto);
         return ResponseEntity.ok(jwtTokenResponseDto);
     }
+
 }

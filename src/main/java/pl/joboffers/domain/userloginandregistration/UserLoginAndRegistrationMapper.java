@@ -11,6 +11,7 @@ public class UserLoginAndRegistrationMapper {
     public static RegistrationResultDto mapFromNewUserRequestDtoToRegistrationResultDto(User user){
         return RegistrationResultDto.builder()
                 .userId(UUID.randomUUID().toString())
+                .isCreated(true)
                 .userName(user.userName())
                 .build();
     }
