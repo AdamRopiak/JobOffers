@@ -132,6 +132,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         MvcResult authenticatedUserResult = authenticatedUser.andExpect(status().isOk()).andReturn();
         String authenticatedUserAsString = authenticatedUserResult.getResponse().getContentAsString();
         JwtTokenResponseDto jwtTokenResponseDto = objectMapper.readValue(authenticatedUserAsString, JwtTokenResponseDto.class);
+        String token = jwtTokenResponseDto.token();
         //then
         assertThat(jwtTokenResponseDto.userName()).isEqualTo("user");
         assertThat(jwtTokenResponseDto.token()).matches(Pattern.compile("^([A-Za-z0-9-_=]+\\.)+([A-Za-z0-9-_=])+\\.?$"));
@@ -140,7 +141,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
         //given && when
         ResultActions getZeroOffers = mockMvc.perform(get("/offers")
-                        .contentType(MediaType.APPLICATION_JSON));
+                        .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
         MvcResult getZeroOffersResult = getZeroOffers.andExpect(status().isOk()).andReturn();
         String getZeroOffersAsString = getZeroOffersResult.getResponse().getContentAsString();
         List<JobOfferDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
@@ -174,7 +176,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     //step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
         //given
         ResultActions getTwoNewOffers = mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
 
         //when
         MvcResult getTwoOffersResult = getTwoNewOffers.andExpect(status().isOk()).andReturn();
@@ -196,7 +199,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //given
         //when
             ResultActions getNotExistingJobOffer = mockMvc.perform(get("/offers/9999")
-                    .contentType(MediaType.APPLICATION_JSON));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer "+token));
         //then
             getNotExistingJobOffer.andExpect(status().isNotFound())
                     .andExpect(content().json(
@@ -223,7 +227,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                                 }        
                                 """.trim()
                 )
-                .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8"));
+                .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                .header("Authorization", "Bearer "+token));
         //then
         MvcResult mvcResult = perform.andExpect(status().isCreated()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
@@ -260,7 +265,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     //step 13: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
         //given
         ResultActions getThreeNewOffers = mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
 
         //when
         MvcResult getThreeOffersResult = getThreeNewOffers.andExpect(status().isOk()).andReturn();
@@ -289,7 +295,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     //step 15: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
         //given
         ResultActions getAllJobOffers = mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
 
         //when
         MvcResult getAllJobOffersResult = getAllJobOffers.andExpect(status().isOk()).andReturn();
