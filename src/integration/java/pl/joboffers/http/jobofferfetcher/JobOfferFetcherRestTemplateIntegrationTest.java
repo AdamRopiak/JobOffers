@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.http.Fault;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import pl.joboffers.SampleJobOfferResponse;
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+@WithMockUser
 public class JobOfferFetcherRestTemplateIntegrationTest extends JobOfferRestTemplateConfig implements SampleJobOfferResponse {
 
 

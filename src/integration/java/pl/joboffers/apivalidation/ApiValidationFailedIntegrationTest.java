@@ -2,6 +2,7 @@ package pl.joboffers.apivalidation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
@@ -15,7 +16,7 @@ import pl.joboffers.infrastructure.apivalidation.ApiValidtationErrorDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@WithMockUser
 public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
     @Container
     public static final MongoDBContainer mongoDbContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.2"));
@@ -28,6 +29,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+
     public void should_return_400_and_validation_message_when_request_url_is_empty() throws Exception {
         //given
         //when
