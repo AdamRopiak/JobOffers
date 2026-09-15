@@ -1,4 +1,10 @@
 package pl.joboffers.domain.userloginandregistration.dto;
 
-public record NewUserRequestDto(String userName, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record NewUserRequestDto(
+        @NotBlank(message = "${username.notblank}")
+        String userName,
+        @NotBlank(message = "${password.notblank}")
+        String password) {
 }

@@ -18,16 +18,20 @@ import pl.joboffers.SampleJobOfferResponse;
 import pl.joboffers.domain.joboffers.JobOfferFacade;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
+import pl.joboffers.domain.userloginandregistration.dto.RegistrationResultDto;
 import pl.joboffers.infrastructure.jobofferfetcher.scheduler.JobOfferFetcherScheduler;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.fasterxml.jackson.core.type.TypeReference;
+import pl.joboffers.infrastructure.userloginandregistration.controller.dto.JwtTokenResponseDto;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @Log4j2
@@ -64,15 +68,81 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(emptyJobOffersList).isEmpty();
 
-    /*step 2: user made GET /offers -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
-    step 3: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned UNAUTHORIZED(401)
-    step 4: user made POST /register with username=User, password=Password and system registered user with status CREATED(201)
-    step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC*/
 
-    //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
+        //step 2: user made GET /offers -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401)
+        //given && when && then
+        ResultActions getOffersUnatohorized = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        getOffersUnatohorized.andExpect(status().isUnauthorized());
+
+        //step 3: user try to get JWT token by request POST on /token with username=user and password=password and system return UNAUTHORIZED(401) - user is not in database
+        //given && when
+        ResultActions failedJwtTokenRequest = mockMvc.perform(post("/token")
+                .content("""
+                        {
+                        "userName": "user",
+                        "password": "password"
+                        }
+                        """.trim())
+                .contentType(MediaType.APPLICATION_JSON));
+        //then
+        failedJwtTokenRequest
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().json("""
+                       {
+                       "message": "Bad Credentials",
+                       "status": "UNAUTHORIZED"
+                       }
+                       """.trim()
+                ));
+
+
+    //step 4: user made POST /register with username=user, password=password and system registered user with status CREATED(201)
+        //given
+        ResultActions registerUserPerform = mockMvc.perform(post("/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                        "userName": "user",
+                        "password": "password"
+                        }
+                        """.trim()));
+        //when
+        MvcResult registerUserResult = registerUserPerform.andExpect(status().isCreated()).andReturn();
+        String registerUserAsString = registerUserResult.getResponse().getContentAsString();
+        RegistrationResultDto registrationResultDto = objectMapper.readValue(registerUserAsString, RegistrationResultDto.class);
+        //then
+        assertThat(registrationResultDto.userId()).isNotNull();
+        assertTrue(registrationResultDto.isCreated());
+
+
+
+    //step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
+        //given
+        ResultActions authenticatedUser = mockMvc.perform(post("/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                        "userName": "user",
+                        "password": "password"
+                        }
+                        """.trim()));
+        //when
+        MvcResult authenticatedUserResult = authenticatedUser.andExpect(status().isOk()).andReturn();
+        String authenticatedUserAsString = authenticatedUserResult.getResponse().getContentAsString();
+        JwtTokenResponseDto jwtTokenResponseDto = objectMapper.readValue(authenticatedUserAsString, JwtTokenResponseDto.class);
+        String token = jwtTokenResponseDto.token();
+        //then
+        assertThat(jwtTokenResponseDto.userName()).isEqualTo("user");
+        assertThat(jwtTokenResponseDto.token()).matches(Pattern.compile("^([A-Za-z0-9-_=]+\\.)+([A-Za-z0-9-_=])+\\.?$"));
+
+
+        //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
         //given && when
         ResultActions getZeroOffers = mockMvc.perform(get("/offers")
-                        .contentType(MediaType.APPLICATION_JSON));
+                        .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
         MvcResult getZeroOffersResult = getZeroOffers.andExpect(status().isOk()).andReturn();
         String getZeroOffersAsString = getZeroOffersResult.getResponse().getContentAsString();
         List<JobOfferDto> offers = objectMapper.readValue(getZeroOffersAsString, new TypeReference<>() {
@@ -106,7 +176,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
     //step 9: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers)
         //given
         ResultActions getTwoNewOffers = mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
 
         //when
         MvcResult getTwoOffersResult = getTwoNewOffers.andExpect(status().isOk()).andReturn();
@@ -128,7 +199,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //given
         //when
             ResultActions getNotExistingJobOffer = mockMvc.perform(get("/offers/9999")
-                    .contentType(MediaType.APPLICATION_JSON));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer "+token));
         //then
             getNotExistingJobOffer.andExpect(status().isNotFound())
                     .andExpect(content().json(
@@ -141,10 +213,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                     ));
 
 
-    /*step 11: user tried to POST /offers  -- authentication will be added later in project (with no jwt token and system returned UNAUTHORIZED(401))
-
-
-    step 12: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
+    //step 11: user made POST /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and body=someOfferRequestDto and system returned CREATED(201) with saved offer id 3)*/
         //given
         //when
         ResultActions perform = mockMvc.perform(post("/offers")
@@ -158,7 +227,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                                 }        
                                 """.trim()
                 )
-                .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8"));
+                .contentType(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+                .header("Authorization", "Bearer "+token));
         //then
         MvcResult mvcResult = perform.andExpect(status().isCreated()).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
@@ -171,7 +241,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 () -> assertThat(jobOfferDto.offerId()).isNotNull()
         );
 
-    //step 13: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
+    //step 12: user made GET /offers/postedJobOfferId -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with offer)
         //given
         wireMockServer.stubFor(WireMock.get("/offers/" + postedJobOfferId)
                 .willReturn(WireMock.aResponse()
@@ -192,10 +262,11 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
 
         );
 
-    //step 14: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
+    //step 13: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 3 offers)
         //given
         ResultActions getThreeNewOffers = mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
 
         //when
         MvcResult getThreeOffersResult = getThreeNewOffers.andExpect(status().isOk()).andReturn();
@@ -205,7 +276,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(threeOffers).hasSize(3);
 
-    //step 15: scheduler ran 3rd time and made GET to external server and system added 2 new offers
+    //step 14: scheduler ran 3rd time and made GET to external server and system added 2 new offers
         //given
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
@@ -221,10 +292,11 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 "5k - 9k PLN",
                 "https://nofluffjobs.com/pl/job/software-engineer-mobile-m-f-d-cybersource-poznan-entavdpndfsd"));
 
-    //step 16: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
+    //step 15: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 5 offers
         //given
         ResultActions getAllJobOffers = mockMvc.perform(get("/offers")
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer "+token));
 
         //when
         MvcResult getAllJobOffersResult = getAllJobOffers.andExpect(status().isOk()).andReturn();
@@ -236,8 +308,8 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
 
 
     /* ---- EXTRA STEP WITH CACHE ----
-    step 17: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
-    step 18: 60 minutes passed, cache expired, and there are 2 new offers in external HTTP server
+    step 16: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
+    step 17: 60 minutes passed, cache expired, and there are 2 new offers in external HTTP server
      */
 
     }

@@ -1,6 +1,7 @@
 package pl.joboffers.domain.userloginandregistration;
 
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 import pl.joboffers.domain.userloginandregistration.dto.NewUserRequestDto;
 import pl.joboffers.domain.userloginandregistration.dto.RegistrationResultDto;
 import pl.joboffers.domain.userloginandregistration.dto.UserDto;
@@ -8,6 +9,7 @@ import pl.joboffers.domain.userloginandregistration.dto.UserDto;
 import java.util.UUID;
 
 @AllArgsConstructor
+@Component
 public class UserLoginAndRegistrationFacade {
 
     private final UserLoginAndRegistrationService userService;

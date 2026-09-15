@@ -3,6 +3,7 @@ package pl.joboffers.controller.error;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.ResultActions;
@@ -14,6 +15,7 @@ import pl.joboffers.BaseIntegrationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 public class OfferUrlDuplicateErrorHandlerIntegrationTest extends BaseIntegrationTest {
     @Container
@@ -27,6 +29,7 @@ public class OfferUrlDuplicateErrorHandlerIntegrationTest extends BaseIntegratio
     }
 
     @Test
+    @WithMockUser
     public void should_retrun_409_when_added_offer_with_already_existing_offerurl() throws Exception {
         //step 1 Adding job offer with url https://nofluffjobs.com
         //given && when
