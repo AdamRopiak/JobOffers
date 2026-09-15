@@ -11,16 +11,14 @@ import org.springframework.stereotype.Component;
 import pl.joboffers.infrastructure.userloginandregistration.controller.dto.JwtTokenResponseDto;
 import pl.joboffers.infrastructure.userloginandregistration.controller.dto.LoginRequestDto;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 
 @AllArgsConstructor
 @Component
 public class JwtAuthenticator {
 
     private final AuthenticationManager authenticationManager;
+    private final JwtAuthenticationProperties jwtAuthenticationProperties;
     private final Clock clock;
 
     public JwtTokenResponseDto authenticateAndGenerateToken(LoginRequestDto loginRequestDto) {
@@ -37,11 +35,11 @@ public class JwtAuthenticator {
 
 
     private String createToken(User user) {
-        String secretKey = "fu34f34f3f3f3fdf";
+        String secretKey = jwtAuthenticationProperties.secret();
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         Instant creationTime = LocalDateTime.now(clock).toInstant(ZoneOffset.UTC);
-        Instant expireAt = creationTime.plusSeconds(3600);
-        String issuer = "JobOfferBacked";
+        Instant expireAt = creationTime.plus(Duration.ofDays(jwtAuthenticationProperties.expirationDays()));
+        String issuer = jwtAuthenticationProperties.issuer();
         return JWT.create()
                 .withSubject(user.getUsername())
                 .withIssuedAt(creationTime)
