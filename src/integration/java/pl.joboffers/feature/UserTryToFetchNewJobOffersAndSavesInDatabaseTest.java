@@ -28,8 +28,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.fasterxml.jackson.core.type.TypeReference;
+import pl.joboffers.infrastructure.userloginandregistration.controller.dto.JwtTokenResponseDto;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 @Log4j2
@@ -79,7 +81,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         ResultActions failedJwtTokenRequest = mockMvc.perform(post("/token")
                 .content("""
                         {
-                        "username": "user",
+                        "userName": "user",
                         "password": "password"
                         }
                         """.trim())
@@ -102,7 +104,7 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                        "userName": "",
+                        "userName": "user",
                         "password": "password"
                         }
                         """.trim()));
@@ -116,9 +118,26 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
 
 
 
-        //step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
+    //step 5: user tried to get JWT token by requesting POST /token with username=User, password=Password and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
+        //given
+        ResultActions authenticatedUser = mockMvc.perform(post("/token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                        "userName": "user",
+                        "password": "password"
+                        }
+                        """.trim()));
+        //when
+        MvcResult authenticatedUserResult = authenticatedUser.andExpect(status().isOk()).andReturn();
+        String authenticatedUserAsString = authenticatedUserResult.getResponse().getContentAsString();
+        JwtTokenResponseDto jwtTokenResponseDto = objectMapper.readValue(authenticatedUserAsString, JwtTokenResponseDto.class);
+        //then
+        assertThat(jwtTokenResponseDto.userName()).isEqualTo("user");
+        assertThat(jwtTokenResponseDto.token()).matches(Pattern.compile("^([A-Za-z0-9-_=]+\\.)+([A-Za-z0-9-_=])+\\.?$"));
 
-    //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
+
+        //step 6: user made GET /offers -- authentication will be added later in project (with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers)
         //given && when
         ResultActions getZeroOffers = mockMvc.perform(get("/offers")
                         .contentType(MediaType.APPLICATION_JSON));

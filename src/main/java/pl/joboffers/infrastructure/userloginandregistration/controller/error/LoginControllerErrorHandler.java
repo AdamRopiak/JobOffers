@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import pl.joboffers.infrastructure.userloginandregistration.controller.UserLoginAndRegistrationController;
+import pl.joboffers.infrastructure.userloginandregistration.controller.TokenController;
 
-@ControllerAdvice(basePackageClasses = UserLoginAndRegistrationController.class)
+@ControllerAdvice(basePackageClasses = TokenController.class)
 public class LoginControllerErrorHandler {
 
     private static String BAD_CREDENTIALS = "Bad Credentials";
@@ -16,7 +16,7 @@ public class LoginControllerErrorHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseBody
-    public LoginErrorResponse badCrenedtialsHandler(){
+    public LoginErrorResponse badCredentialsHandler(){
         return LoginErrorResponse.builder()
                 .message(BAD_CREDENTIALS)
                 .status(HttpStatus.UNAUTHORIZED)
