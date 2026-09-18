@@ -1,6 +1,7 @@
 package pl.joboffers.domain.joboffers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import pl.joboffers.domain.joboffers.dto.JobOfferDto;
 import pl.joboffers.domain.joboffers.dto.JobOfferResponseDto;
 import pl.joboffers.infrastructure.joboffers.controller.dto.JobOfferRequestDto;
@@ -14,6 +15,7 @@ public class JobOfferFacade {
     private final JobOfferAdder jobOfferAdder;
     private final JobOfferFetcherService jobOfferFetcherService;
 
+    @Cacheable("jobOffers")
     public List<JobOfferDto> findAllJobsOffers(){
         return jobOfferRetriever.findAllJobsOffer();
     }
