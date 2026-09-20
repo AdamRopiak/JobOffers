@@ -1,4 +1,11 @@
 spring:
+  redis:
+    host: localhost
+    port: 63792
+  cache:
+    type: redis
+    redis:
+      time-to-live: PT10M
   application:
     name: joboffers
   data:

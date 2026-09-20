@@ -10,8 +10,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       MONGO_INITDB_DATABASE: job-offers
-    volumes:
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+   # volumes:
+   #   - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
 
   mongo-express:
     image: mongo-express
@@ -21,9 +21,21 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@joboffers-mongo-1:27017/?authSource=admin # mongodb://{mongo-image-username}:{mongo-image-password}@{mongo-image-name}:{port}
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/?authSource=admin # mongodb://{mongo-image-username}:{mongo-image-password}@{mongo-image-name}:{port}
       ME_CONFIG_BASICAUTH_USERNAME: express
       ME_CONFIG_BASICAUTH_PASSWORD: express
       ME_CONFIG_MONGODB_ENABLE_ADMIN: true
 
+  redis:
+    image: redis:8.8.2
+    ports:
+      - "63792:6379"
+    restart: always
 
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOST=localhost:63792
+    ports:
+      - "8082:8081"

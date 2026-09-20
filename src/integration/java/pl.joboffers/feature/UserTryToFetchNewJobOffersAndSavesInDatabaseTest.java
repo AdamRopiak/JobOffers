@@ -306,11 +306,5 @@ public class UserTryToFetchNewJobOffersAndSavesInDatabaseTest extends BaseIntegr
         //then
         assertThat(allOffers).hasSize(5);
 
-
-    /* ---- EXTRA STEP WITH CACHE ----
-    step 16: scheduler ran within 60 minutes cache TTL interval and system retrieved offers from cache without calling external HTTP server
-    step 17: 60 minutes passed, cache expired, and there are 2 new offers in external HTTP server
-     */
-
     }
 }
