@@ -1,4 +1,4 @@
-package pl.joboffers.infrastructure.security.jwt;
+package pl.joboffers.infrastructure.security.jwt.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
