@@ -23,7 +23,7 @@ public class JwtAuthenticator {
 
     public JwtTokenResponseDto authenticateAndGenerateToken(LoginRequestDto loginRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequestDto.userName(), loginRequestDto.password()));
+                new UsernamePasswordAuthenticationToken(loginRequestDto.username(), loginRequestDto.password()));
         User user = (User) authentication.getPrincipal();
         String token = createToken(user);
         String userName = user.getUsername();

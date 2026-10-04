@@ -3,6 +3,7 @@ package pl.joboffers.infrastructure.security.jwt;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -21,6 +22,7 @@ import pl.joboffers.domain.userloginandregistration.UserLoginAndRegistrationFaca
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final CorsConfig corsConfig;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -39,15 +41,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()));
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
-                        .requestMatchers("/token/**").permitAll()
-                        .requestMatchers("/register/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/token/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/register/**").permitAll()
                         .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/offers/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/offers/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

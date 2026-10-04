@@ -24,7 +24,7 @@ public class RegisterController {
         String encodedPassword = passwordEncoder.encode(newUserRequestDto.password());
         RegistrationResultDto registrationResultDto = userLoginAndRegistrationFacade
                 .registerNewUser(new NewUserRequestDto(
-                                    newUserRequestDto.userName(),
+                                    newUserRequestDto.username(),
                                     encodedPassword));
         return ResponseEntity.status(HttpStatus.CREATED).body(registrationResultDto);
     }

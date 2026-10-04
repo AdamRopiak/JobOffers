@@ -6,7 +6,7 @@ import lombok.Builder;
 @Builder
 public record LoginRequestDto(
         @NotBlank(message = "{username.notblank}")
-        String userName,
+        String username,
         @NotBlank(message = "{password.notblank}")
         String password
                               ) {
