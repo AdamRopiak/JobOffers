@@ -25,7 +25,7 @@ public class UserLoginAndRegistrationMapper {
     public static User mapFromNewUserRequestDtoToUser(NewUserRequestDto newUserRequestDto){
         return User.builder()
                 .userId(UUID.randomUUID().toString())
-                .userName(newUserRequestDto.userName())
+                .userName(newUserRequestDto.username())
                 .password(newUserRequestDto.password())
                 .build();
     }

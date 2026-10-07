@@ -27,16 +27,6 @@ public class InMemoryUserRepository implements UserRepository{
         database.put(user.userName(), user);
         return entity;
     }
-   /* @Override
-    public User save(User newUser) {
-        User user = new User(
-                newUser.userId(),
-                newUser.userName(),
-                newUser.password()
-        );
-        database.put(user.userName(), user);
-        return user;
-    }*/
 
     @Override
     public Optional<User> findByUserName(String userName) {

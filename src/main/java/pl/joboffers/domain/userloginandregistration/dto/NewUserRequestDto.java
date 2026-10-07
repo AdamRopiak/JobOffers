@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record NewUserRequestDto(
         @NotBlank(message = "${username.notblank}")
-        String userName,
+        String username,
         @NotBlank(message = "${password.notblank}")
         String password) {
 }
