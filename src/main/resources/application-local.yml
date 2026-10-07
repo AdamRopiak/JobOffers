@@ -1,7 +1,7 @@
 spring:
   redis:
-    host: redis
-    port: 6379
+    host: localhost
+    port: 63792
   cache:
     type: redis
     redis:
@@ -10,7 +10,7 @@ spring:
     name: joboffers
   data:
     mongodb:
-      uri: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB_NAME}?authSource=${MONGO_AUTH_SOURCE}
+      uri: mongodb://root:example@localhost:27017/job-offers?authSource=admin
       auto-index-creation: true
 
 joboffers:
@@ -29,5 +29,5 @@ scheduling:
 auth:
   jwt:
     expirationDays: 30
-    secret: "asdadadafw923052175v1hnpavhn7845vn5anv"
+    secret: ${JWT_SECRET}
     issuer: JobOfferBacked
