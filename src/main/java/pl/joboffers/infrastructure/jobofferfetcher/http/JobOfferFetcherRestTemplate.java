@@ -36,6 +36,9 @@ public class JobOfferFetcherRestTemplate implements JobOfferFetcher {
             ResponseEntity<List<JobOfferResponseDto>> response = getListResponseEntity(requestEntity);
             List<JobOfferResponseDto> jobOfferResponseDto = getJobOfferResponseDto(response);
             if(jobOfferResponseDto.size()!=0) {
+                for(JobOfferResponseDto responseDto : jobOfferResponseDto) {
+                    log.info("Job offer: " + responseDto.offerUrl() + " fetched" );
+                }
                 return jobOfferResponseDto;
             }
             return Collections.emptyList();
